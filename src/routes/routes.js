@@ -7,6 +7,8 @@ const {
   admninRegister,
   adminLogin,
   verifyAccount,
+  request,
+  amountPending,
 } = require("../controllers/Auth/auth.controller");
 
 router.get("/", (req, res) => {
@@ -22,7 +24,11 @@ router.post("/adminRegister", admninRegister);
 
 router.post("/loginAdmin", adminLogin);
 
-router.get("/verify/:id", verifyAccount);
+router.put("/verify/:id", verifyAccount);
+
+router.get("/request", request);
+
+router.get("/Transaction", amountPending);
 
 router.post("/upload", upload.single("customeName"), (req, res) => {
   // console.log(req.body);

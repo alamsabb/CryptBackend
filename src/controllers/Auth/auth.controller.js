@@ -129,7 +129,12 @@ exports.adminLogin = async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
-    res.status(200).json({ message: "Admin login successfully" });
+    const response = {
+      userName: admin.userName,
+      email: admin.email,
+      role: "Admin",
+    };
+    res.status(200).json({ message: "Admin login successfully", response });
   } catch (error) {
     console.log("ERROR IN THE ADMIN LOGIN FUNCTION----------->", error);
     res.status(500).json({ message: "An error occure in the admin login" });
@@ -151,5 +156,34 @@ exports.verifyAccount = async (req, res) => {
   } catch (error) {
     console.log("ERROR IN THE VERIFY ACCOUNT FUNCTION----------->", error);
     res.status(500).json({ message: "An error occure in the verify account" });
+  }
+};
+
+exports.request = async (req, res) => {
+  try {
+    const dataStored = await User.find({
+      verification: "VERIFICATION PENDING",
+    });
+    console.log(dataStored);
+    res
+      .status(200)
+      .json({ message: "Request fetched successfully", dataStored });
+  } catch (error) {
+    console.log("ERROR IN THE REQUEST FUNCTION----------->", error);
+    res.status(500).json({ message: "An error occure in the request" });
+  }
+};
+
+exports.amountPending = async (req, res) => {
+  try {
+    const dataStored = await User.find({
+      verification: "VERIFIED",
+    });
+    res
+      .status(200)
+      .json({ message: "Request fetched successfully", dataStored });
+  } catch (error) {
+    console.log("ERROR IN THE REQUEST FUNCTION----------->", error);
+    res.status(500).json({ message: "An error occure in the request" });
   }
 };

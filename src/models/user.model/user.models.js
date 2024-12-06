@@ -47,6 +47,9 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 5,
   },
+  totalIntrest: {
+    type: Number,
+  },
 });
 
 // Ensure walletNumber uniqueness before saving
@@ -61,5 +64,14 @@ userSchema.pre("save", async function (next) {
   }
   next();
 });
+
+userSchema.static.addIntrest = async function () {
+  const verifiedUsers = await this.find({ verification: "VERIFIED" });
+  for (const user of verifiedUsers) {
+    const intrest = (user.amount * user.roi) / 100;
+    user.totalIntrest += intrest;
+    await user.save();
+  }
+};
 
 module.exports = mongoose.model("User", userSchema);
