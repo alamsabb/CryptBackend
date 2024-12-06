@@ -9,6 +9,9 @@ const {
   verifyAccount,
   request,
   amountPending,
+  ammountSend,
+  profile,
+  userTransaction,
 } = require("../controllers/Auth/auth.controller");
 
 router.get("/", (req, res) => {
@@ -26,9 +29,15 @@ router.post("/loginAdmin", adminLogin);
 
 router.put("/verify/:id", verifyAccount);
 
+router.get("/profile/:id", profile);
+
 router.get("/request", request);
 
 router.get("/Transaction", amountPending);
+
+router.put("/Transaction/:id", ammountSend);
+
+router.get("/userTransaction/:id", userTransaction);
 
 router.post("/upload", upload.single("customeName"), (req, res) => {
   // console.log(req.body);

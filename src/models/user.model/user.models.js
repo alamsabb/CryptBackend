@@ -49,29 +49,26 @@ const userSchema = new mongoose.Schema({
   },
   totalIntrest: {
     type: Number,
+    default: 0,
   },
 });
 
 // Ensure walletNumber uniqueness before saving
 userSchema.pre("save", async function (next) {
   const user = this;
-  while (true) {
-    const existingUser = await mongoose.models.User.findOne({
-      walletNumber: user.walletNumber,
-    });
-    if (!existingUser) break;
-    user.walletNumber = uuidv4(); // Regenerate walletNumber if duplicate found
+  if (user.isNew) {
+    while (true) {
+      const existingUser = await mongoose.models.User.findOne({
+        walletNumber: user.walletNumber,
+      });
+      if (!existingUser) break;
+
+      // Regenerate walletNumber if duplicate found
+      user.walletNumber = uuidv4();
+    }
   }
+
   next();
 });
-
-userSchema.static.addIntrest = async function () {
-  const verifiedUsers = await this.find({ verification: "VERIFIED" });
-  for (const user of verifiedUsers) {
-    const intrest = (user.amount * user.roi) / 100;
-    user.totalIntrest += intrest;
-    await user.save();
-  }
-};
 
 module.exports = mongoose.model("User", userSchema);

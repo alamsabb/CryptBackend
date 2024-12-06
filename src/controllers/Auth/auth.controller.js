@@ -1,6 +1,7 @@
 const User = require("../../models/user.model/user.models");
 const Admin = require("../../models/user.model/admin.model");
 const bcrypt = require("bcrypt");
+const transaction = require("../../models/transaction.model/transaction.modal");
 
 exports.register = async (req, res) => {
   try {
@@ -164,7 +165,6 @@ exports.request = async (req, res) => {
     const dataStored = await User.find({
       verification: "VERIFICATION PENDING",
     });
-    console.log(dataStored);
     res
       .status(200)
       .json({ message: "Request fetched successfully", dataStored });
@@ -185,5 +185,59 @@ exports.amountPending = async (req, res) => {
   } catch (error) {
     console.log("ERROR IN THE REQUEST FUNCTION----------->", error);
     res.status(500).json({ message: "An error occure in the request" });
+  }
+};
+
+exports.ammountSend = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findOne({
+      walletNumber: id,
+    });
+    await transaction.create({
+      sender: "Admin",
+      receiver: user.walletNumber,
+      amount: user.totalIntrest || 0,
+    });
+    user.totalIntrest = 0;
+    await user.save();
+    res.status(200).json({ message: "Amount sent successfully" });
+  } catch (error) {
+    console.log("ERROR IN THE Send Amout FUNCTION----------->", error);
+    res.status(500).json({ message: "An error occure in the request" });
+  }
+};
+
+exports.profile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findOne({
+      walletNumber: id,
+    }).select("-password");
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid wallet number" });
+    }
+
+    res.status(200).json({ message: "Profile fetched successfully", user });
+  } catch (error) {
+    console.log("ERROR IN THE PROFILE FUNCTION----------->", error);
+    res.status(500).json({ message: "An error occure in the profile" });
+  }
+};
+
+exports.userTransaction = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await transaction.find({ receiver: id });
+    if (!user) {
+      return res.status(400).json({ message: "No Transaction" });
+    }
+    res.status(200).json({ message: "Transaction fetched successfully", user });
+  } catch (error) {
+    console.log("ERROR IN THE USER TRANSACTION FUNCTION----------->", error);
+    res
+      .status(500)
+      .json({ message: "An error occure in the user transaction" });
   }
 };
